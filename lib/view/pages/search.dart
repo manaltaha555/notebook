@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -51,15 +52,10 @@ class CustomSearch extends SearchDelegate {
 
   @override
   Widget? buildLeading(BuildContext context) {
-    var orientation = MediaQuery.of(context).orientation;
-    var screenHeight;
-    if (orientation == Orientation.portrait) {
-      screenHeight = MediaQuery.of(context).size.width;
-    } else {
-      screenHeight = MediaQuery.of(context).size.height;
-    }
+    final screenSize = getScreenSize(context);
+  final screenHeight = screenSize.screenHeight;
     return IconButton(
-      icon: Icon(Icons.arrow_back, color: Colors.white, size: screenHeight * 0.07),
+      icon: Icon(Icons.arrow_back, color: Colors.white, size: screenHeight * 0.04),
       onPressed: () {
         close(context, null); // Close the search
       },
@@ -68,18 +64,13 @@ class CustomSearch extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    var orientation = MediaQuery.of(context).orientation;
-    var screenWidth;
-    var screenHeight;
-    if (orientation == Orientation.portrait) {
-      screenWidth = MediaQuery.of(context).size.height;
-      screenHeight = MediaQuery.of(context).size.width;
-    } else {
-      screenWidth = MediaQuery.of(context).size.width;
-      screenHeight = MediaQuery.of(context).size.height;
-    }
+        User? user = FirebaseAuth.instance.currentUser!;
+    final screenSize = getScreenSize(context);
+  final screenWidth = screenSize.screenWidth;
+  final screenHeight = screenSize.screenHeight;
     Stream<QuerySnapshot> stream = FirebaseFirestore.instance
         .collection("Notes")
+        .where('userId', isEqualTo: user.uid)
         .where("note_title", isGreaterThanOrEqualTo: query)
         .where("note_title", isLessThanOrEqualTo: query + '\uf8ff')
         .snapshots();
@@ -132,11 +123,13 @@ class CustomSearch extends SearchDelegate {
 
   @override
   Widget buildSuggestions(BuildContext context) {
+        User? user = FirebaseAuth.instance.currentUser!;
     final screenSize = getScreenSize(context);
   final screenWidth = screenSize.screenWidth;
   final screenHeight = screenSize.screenHeight;
     Stream<QuerySnapshot> stream = FirebaseFirestore.instance
         .collection("Notes")
+        .where('userId', isEqualTo: user.uid)
         .where("note_title", isGreaterThanOrEqualTo: query)
         .where("note_title", isLessThanOrEqualTo: query + '\uf8ff')
         .snapshots();

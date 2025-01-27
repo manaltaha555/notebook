@@ -16,7 +16,7 @@ Widget noteCard({
     onTap: onTap,
     onLongPress: onLongPress,
     child: Container(
-      height: screenHeight * 0.25,
+      height: screenHeight * 0.27,
       padding: EdgeInsets.all(screenWidth * 0.01),
       margin: EdgeInsets.all(screenWidth * 0.0085),
       decoration: BoxDecoration(
