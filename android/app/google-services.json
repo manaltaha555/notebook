@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "480196389788",
+    "project_id": "notebook-aa28a",
+    "storage_bucket": "notebook-aa28a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:480196389788:android:3b86eb9edb28cec2a67659",
+        "android_client_info": {
+          "package_name": "com.example.newnotebook"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBA5HWZr9OMfa2XwKDP2rkZbK_KARg3LiE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
