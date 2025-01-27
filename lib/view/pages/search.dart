@@ -4,18 +4,14 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:newnotebook/view/components/app_style.dart';
 import 'package:newnotebook/view/components/note_card.dart';
+import 'package:newnotebook/view/components/screenSize.dart';
 import 'package:newnotebook/view/pages/note_screen.dart';
 
 class CustomSearch extends SearchDelegate {
   @override
   ThemeData appBarTheme(BuildContext context) {
-    var orientation = MediaQuery.of(context).orientation;
-    var screenWidth;
-    if (orientation == Orientation.portrait) {
-      screenWidth = MediaQuery.of(context).size.height;
-    } else {
-      screenWidth = MediaQuery.of(context).size.width;
-    }
+   final screenSize = getScreenSize(context);
+  final screenWidth = screenSize.screenWidth;
     return ThemeData(
       appBarTheme: AppBarTheme(
         backgroundColor:
@@ -27,7 +23,7 @@ class CustomSearch extends SearchDelegate {
       textTheme: TextTheme(
         titleLarge: TextStyle(
           color: Colors.white, // Color of the text typed in the search bar
-          fontSize: screenWidth * 0.028,
+          fontSize: screenWidth * 0.04,
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -41,16 +37,11 @@ class CustomSearch extends SearchDelegate {
 
   @override
   List<Widget>? buildActions(BuildContext context) {
-    var orientation = MediaQuery.of(context).orientation;
-    var screenHeight;
-    if (orientation == Orientation.portrait) {
-      screenHeight = MediaQuery.of(context).size.width;
-    } else {
-      screenHeight = MediaQuery.of(context).size.height;
-    }
+    final screenSize = getScreenSize(context);
+  final screenHeight = screenSize.screenHeight;
     return [
       IconButton(
-        icon: Icon(Icons.close, color: Colors.white, size: screenHeight * 0.08),
+        icon: Icon(Icons.close, color: Colors.white, size: screenHeight * 0.04),
         onPressed: () {
           query = ""; // Clear the search query
         },
@@ -68,7 +59,7 @@ class CustomSearch extends SearchDelegate {
       screenHeight = MediaQuery.of(context).size.height;
     }
     return IconButton(
-      icon: Icon(Icons.arrow_back, color: Colors.white, size: screenHeight * 0.08),
+      icon: Icon(Icons.arrow_back, color: Colors.white, size: screenHeight * 0.07),
       onPressed: () {
         close(context, null); // Close the search
       },
@@ -141,16 +132,9 @@ class CustomSearch extends SearchDelegate {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    var orientation = MediaQuery.of(context).orientation;
-    var screenWidth;
-    var screenHeight;
-    if (orientation == Orientation.portrait) {
-      screenWidth = MediaQuery.of(context).size.height;
-      screenHeight = MediaQuery.of(context).size.width;
-    } else {
-      screenWidth = MediaQuery.of(context).size.width;
-      screenHeight = MediaQuery.of(context).size.height;
-    }
+    final screenSize = getScreenSize(context);
+  final screenWidth = screenSize.screenWidth;
+  final screenHeight = screenSize.screenHeight;
     Stream<QuerySnapshot> stream = FirebaseFirestore.instance
         .collection("Notes")
         .where("note_title", isGreaterThanOrEqualTo: query)

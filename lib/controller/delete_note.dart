@@ -7,6 +7,5 @@ Future<void> deleteNote(QueryDocumentSnapshot doc) async {
 
     await notesCollection.doc(doc.id).delete();
 
-  // Navigate back after deleting
   Get.back();
 }

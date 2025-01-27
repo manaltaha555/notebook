@@ -16,7 +16,7 @@ Widget noteCard({
     onTap: onTap,
     onLongPress: onLongPress,
     child: Container(
-      height: screenHeight * 0.54,
+      height: screenHeight * 0.25,
       padding: EdgeInsets.all(screenWidth * 0.01),
       margin: EdgeInsets.all(screenWidth * 0.0085),
       decoration: BoxDecoration(
@@ -26,7 +26,7 @@ Widget noteCard({
               color: isSelected
                   ? Color(0xffFEC838)
                   : Colors.transparent, // Change the border color conditionally
-              width: screenWidth * 0.008)),
+              width: screenWidth * 0.01)),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,13 +34,13 @@ Widget noteCard({
           Text(
             doc["note_title"] == "" ? "No Title" : doc["note_title"],
             style:
-                GoogleFonts.roboto(fontSize: screenWidth * 0.029, fontWeight: FontWeight.w600),
+                GoogleFonts.roboto(fontSize: screenWidth * 0.06,fontWeight: FontWeight.w600),
             overflow: TextOverflow.ellipsis,
           ),
           SizedBox(height: 5),
           Text(
             doc["note_content"],
-            style: GoogleFonts.nunito(fontSize: screenWidth * 0.027, fontWeight: FontWeight.normal),
+            style: GoogleFonts.nunito(fontSize: screenWidth * 0.05,fontWeight: FontWeight.normal),
             maxLines: 4,
             overflow: TextOverflow.ellipsis,
           )

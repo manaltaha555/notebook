@@ -8,7 +8,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:newnotebook/controller/pin_note.dart';
 import 'package:newnotebook/controller/selectionController.dart';
 import 'package:newnotebook/view/components/app_style.dart';
-import 'package:newnotebook/view/components/note_card.dart';
+import 'package:newnotebook/view/components/note_stream.dart';
+import 'package:newnotebook/view/components/pin_notes.dart';
+import 'package:newnotebook/view/components/screenSize.dart';
 import 'package:newnotebook/view/pages/note_screen.dart';
 import 'package:newnotebook/view/pages/search.dart';
 import 'package:share_plus/share_plus.dart';
@@ -66,16 +68,9 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    var orientation = MediaQuery.of(context).orientation;
-    var screenWidth;
-    var screenHeight;
-    if (orientation == Orientation.portrait) {
-      screenWidth = MediaQuery.of(context).size.height;
-      screenHeight = MediaQuery.of(context).size.width;
-    } else {
-      screenWidth = MediaQuery.of(context).size.width;
-      screenHeight = MediaQuery.of(context).size.height;
-    }
+    final screenSize = getScreenSize(context);
+  final screenWidth = screenSize.screenWidth;
+  final screenHeight = screenSize.screenHeight;
     return Scaffold(
       backgroundColor: AppStyle.mainColor,
       floatingActionButton: FloatingActionButton(
@@ -85,14 +80,14 @@ class _HomeState extends State<Home> {
           Get.to(() => NoteScreen(doc: null));
         },
         child: Icon(Icons.add,
-            size: screenHeight * 0.08, color: AppStyle.mainColor),
+            size: screenHeight * 0.05, color: AppStyle.mainColor),
       ),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.only(
-              top: screenHeight * 0.08,
-              left: screenWidth * 0.02,
-              right: screenWidth * 0.02),
+              top: screenHeight * 0.06,
+              left: screenWidth * 0.06,
+              right: screenWidth * 0.06),
           child: RefreshIndicator(
             onRefresh: () async {
               await onRefresh();
@@ -103,19 +98,19 @@ class _HomeState extends State<Home> {
                   child: buildSearchOrSelectionBar(screenWidth, screenHeight),
                 ),
                 SliverToBoxAdapter(
-                  child: SizedBox(height: screenHeight * 0.03),
+                  child: SizedBox(height: screenHeight * 0.008),
                 ),
                 SliverToBoxAdapter(
                   child: buildPinnedNotes(screenWidth, screenHeight),
                 ),
                 SliverToBoxAdapter(
-                  child: SizedBox(height: screenHeight * 0.03),
+                  child: SizedBox(height: screenHeight * 0.008),
                 ),
                 SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
                       return buildNotesStream(
-                          screenWidth, screenHeight); // Regular notes section
+                          screenWidth, screenHeight, currentSort, updateSorting); // Regular notes section
                     },
                     childCount: 1, // Only one stream for regular notes
                   ),
@@ -143,8 +138,8 @@ class _HomeState extends State<Home> {
                 borderRadius: BorderRadius.circular(30),
               ),
               padding: EdgeInsets.symmetric(
-                  horizontal: screenWidth * 0.025,
-                  vertical: screenHeight * 0.03),
+                  horizontal: screenWidth * 0.015,
+                  vertical: screenHeight * 0.02),
               child: Row(
                 children: [
                   Icon(Icons.search, color: AppStyle.mainColor),
@@ -152,7 +147,7 @@ class _HomeState extends State<Home> {
                   Text(
                     "Search",
                     style: GoogleFonts.roboto(
-                        fontSize: screenWidth * 0.025,
+                        fontSize: screenWidth * 0.04,
                         color: AppStyle.mainColor),
                   ),
                 ],
@@ -174,7 +169,7 @@ Widget buildSelectionBar(double screenWidth, double screenHeight) {
           icon: Icon(
             Icons.close,
             color: Colors.white,
-            size: screenHeight * 0.08,
+            size: screenHeight * 0.04,
           ),
         ),
         Row(
@@ -185,7 +180,7 @@ Widget buildSelectionBar(double screenWidth, double screenHeight) {
                     icon: Icon(
                       Icons.share,
                       color: Colors.white,
-                      size: screenHeight * 0.08,
+                      size: screenHeight * 0.04,
                     ),
                   )
                 : Text(
@@ -214,8 +209,8 @@ Widget buildSelectionBar(double screenWidth, double screenHeight) {
       },
       icon: SvgPicture.asset("assets/icons/pin.svg",
           color: Colors.white,
-          width: screenWidth * 0.08,
-          height: screenHeight * 0.08),
+          width: screenWidth * 0.04,
+          height: screenHeight * 0.04),
     );
   }
 
@@ -236,7 +231,7 @@ Widget buildSelectionBar(double screenWidth, double screenHeight) {
           titleTextStyle: GoogleFonts.nunito(
             color: Color(0xff212E54),
             fontWeight: FontWeight.w700,
-            fontSize: screenWidth * 0.03,
+            fontSize: screenWidth * 0.04,
           ),
           desc: controller.selectedNotes.length == 1
               ? "Are You Sure You Want To Delete This Note?"
@@ -244,7 +239,7 @@ Widget buildSelectionBar(double screenWidth, double screenHeight) {
           descTextStyle: GoogleFonts.nunito(
             color: Color(0xff9B9B9B),
             fontWeight: FontWeight.w700,
-            fontSize: screenWidth * 0.029,
+            fontSize: screenWidth * 0.038,
           ),
           btnOkOnPress: () async {
             for (var id in controller.selectedNotes) {
@@ -256,7 +251,7 @@ Widget buildSelectionBar(double screenWidth, double screenHeight) {
             controller.exitSelectionMode();
           },
           buttonsTextStyle: GoogleFonts.nunito(
-              fontSize: screenWidth * 0.027,
+              fontSize: screenWidth * 0.032,
               color: Colors.white,
               fontWeight: FontWeight.bold),
           btnOkText: "Delete",
@@ -271,232 +266,11 @@ Widget buildSelectionBar(double screenWidth, double screenHeight) {
       icon: Icon(
         Icons.delete_outline,
         color: Colors.white,
-        size: screenHeight * 0.08,
+        size: screenHeight * 0.04,
       ),
     );
   }
-
-  Widget buildSortMenu(double screenWidth, double screenHeight) {
-    String sort;
-    switch (currentSort) {
-      case "edit_date":
-        {
-          sort = "last edit date";
-        }
-      case "creation_date":
-        {
-          sort = "creation date";
-        }
-      case "note_title":
-        {
-          sort = "title";
-        }
-      case "note_content":
-        {
-          sort = "content";
-        }
-      default:
-        {
-          sort = "creation date";
-        }
-    }
-    return Row(
-      children: [
-        PopupMenuButton<String>(
-          onSelected: updateSorting,
-          icon: SvgPicture.asset(
-            "assets/icons/sort2.svg",
-            width: screenWidth * 0.08,
-            height: screenHeight * 0.08,
-            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-          ),
-          itemBuilder: (context) => [
-            buildSortMenuItem("edit_date", "Sort by Edit Date", screenWidth),
-            buildSortMenuItem(
-                "creation_date", "Sort by Create Date", screenWidth),
-            buildSortMenuItem("note_title", "Sort by Title", screenWidth),
-            buildSortMenuItem("note_content", "Sort by Content", screenWidth),
-          ],
-        ),
-        SizedBox(width: screenWidth * 0.01),
-        Text(
-          "Sort By ${sort}",
-          style: GoogleFonts.roboto(
-            color: const Color.fromRGBO(255, 255, 255, 1),
-            fontSize: screenWidth * 0.025,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    );
-  }
-
-  PopupMenuItem<String> buildSortMenuItem(
-      String value, String text, double screenWidth) {
-    return PopupMenuItem(
-      value: value,
-      child: Text(
-        text,
-        style: GoogleFonts.roboto(fontSize: screenWidth * 0.022),
-      ),
-    );
-  }
-
-  Widget buildPinnedNotesSection(double screenWidth, double screenHeight) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            SvgPicture.asset("assets/icons/pin.svg",
-                color: Colors.white,
-                width: screenWidth * 0.08,
-                height: screenHeight * 0.08),
-            SizedBox(width: screenWidth * 0.01),
-            Text(
-              "Pinned",
-              style: GoogleFonts.roboto(
-                color: Colors.white,
-                fontSize: screenWidth * 0.025,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget buildPinnedNotes(double screenWidth, double screenHeight) {
-    User? user = FirebaseAuth.instance.currentUser!;
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection("Notes")
-          .where('userId', isEqualTo: user.uid)
-          .where('pinned', isEqualTo: true) // Filter by pinned notes
-          .snapshots(),
-      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.hasError) {
-          return Text("Error: ${snapshot.error}");
-        }
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
-        }
-
-        final notes = snapshot.data!.docs;
-
-        if (notes.isEmpty) {
-          return SizedBox();
-        }
-
-        return Column(
-          children: [
-            buildPinnedNotesSection(screenWidth, screenHeight),
-            SizedBox(height: screenHeight * 0.025),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: notes.length,
-              itemBuilder: (context, index) {
-                return GetX<SelectionController>(builder: (controller) {
-                  return buildNoteCard(
-                      notes[index], index, screenWidth, screenHeight);
-                });
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget buildNotesStream(double screenWidth, double screenHeight) {
-    User? user = FirebaseAuth.instance.currentUser!;
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection("Notes")
-          .where('userId', isEqualTo: user.uid)
-          .where('pinned', isEqualTo: false)
-          .orderBy(currentSort,
-              descending:
-                  currentSort == "creation_date" || currentSort == "edit_date")
-          .snapshots(),
-      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return Center(
-            child: Text(
-              "Error loading your data",
-              style: GoogleFonts.roboto(
-                color: Colors.white,
-                fontSize: screenWidth * 0.028,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          );
-        }
-        final notes = snapshot.data!.docs;
-
-        if (notes.isEmpty) {
-          return SizedBox();
-        }
-
-        return Column(
-          children: [
-            buildSortMenu(screenWidth, screenHeight),
-            SizedBox(height: screenHeight * 0.025),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: notes.length,
-              itemBuilder: (context, index) {
-                return GetX<SelectionController>(builder: (controller) {
-                  return buildNoteCard(
-                      notes[index], index, screenWidth, screenHeight);
-                });
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget buildNoteCard(QueryDocumentSnapshot note, int index,
-      double screenWidth, double screenHeight) {
-    final id = note.id;
-
-    return noteCard(
-        screenWidth: screenWidth,
-        screenHeight: screenHeight,
-        isSelected: controller.selectedNotes.contains(id),
-        colorCard: AppStyle.cardsColor[index % AppStyle.cardsColor.length],
-        doc: note,
-        context: context,
-        onLongPress: () {
-          controller.enterSelectionMode();
-          controller.toggleSelection(id);
-        },
-        onTap: () {
-          if (controller.isSelectionMode == true &&
-              controller.selectedNotes.isNotEmpty) {
-            // Toggle selection if in selection mode and there are selected notes
-            controller.toggleSelection(id);
-          } else if (controller.selectedNotes.isEmpty) {
-            // Exit selection mode if no selected notes
-            controller.exitSelectionMode();
-            // Proceed to the note screen if no selection mode is active
-            Get.to(() => NoteScreen(doc: note));
-          } else {
-            // Enter selection mode when tapping on a note while not in selection mode
-            controller.enterSelectionMode();
-            controller.toggleSelection(id);
-          }
-        });
-  }
-
+  
   void shareNote() async {
     if (controller.selectedNotes.isNotEmpty) {
       for (var id in controller.selectedNotes) {

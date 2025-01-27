@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:newnotebook/controller/delete_note.dart';
 import 'package:newnotebook/controller/save_note.dart';
 import 'package:newnotebook/view/components/app_style.dart';
+import 'package:newnotebook/view/components/screenSize.dart';
 import 'package:newnotebook/view/pages/home.dart';
 
 class NoteScreen extends StatefulWidget {
@@ -40,20 +41,20 @@ class _NoteScreenState extends State<NoteScreen> {
         titleTextStyle: GoogleFonts.nunito(
           color: Color(0xff212E54),
           fontWeight: FontWeight.w700,
-          fontSize: screenWidth * 0.03,
+          fontSize: screenWidth * 0.045,
         ),
         desc: "Are You Sure You Want To Leave without Save?",
         descTextStyle: GoogleFonts.nunito(
           color: Color(0xff9B9B9B),
           fontWeight: FontWeight.w700,
-          fontSize: screenWidth * 0.029,
+          fontSize: screenWidth * 0.038,
         ),
         btnOkOnPress: () async {
           // Save the note and allow popping the screen
           await saveNote(titleController, contentController, widget.doc);
           shouldPop = true; // This will allow the user to leave the page
         },
-        buttonsTextStyle: GoogleFonts.nunito(fontSize: screenWidth * 0.027,color: Colors.white, fontWeight: FontWeight.bold),
+        buttonsTextStyle: GoogleFonts.nunito(fontSize: screenWidth * 0.032,color: Colors.white, fontWeight: FontWeight.bold),
         btnOkText: "Save",
         btnOkColor: Color(0xFF212E54),
         btnCancelOnPress: () {
@@ -88,16 +89,9 @@ class _NoteScreenState extends State<NoteScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var orientation = MediaQuery.of(context).orientation;
-                var screenWidth;
-                var screenHeight;
-                if(orientation == Orientation.portrait){
-                   screenWidth = MediaQuery.of(context).size.height;
-                  screenHeight = MediaQuery.of(context).size.width;
-                }else{
-                  screenWidth = MediaQuery.of(context).size.width;
-                  screenHeight = MediaQuery.of(context).size.height;
-                }
+    final screenSize = getScreenSize(context);
+  final screenWidth = screenSize.screenWidth;
+  final screenHeight = screenSize.screenHeight;
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (bool didPop, Object? result) async {
@@ -117,7 +111,7 @@ class _NoteScreenState extends State<NoteScreen> {
           leading: IconButton(
             icon: Icon(
               Icons.arrow_back_sharp,
-              size: screenHeight * 0.08,
+              size: screenHeight * 0.04,
               color: isDarkMode ? Colors.white : AppStyle.mainColor,
               
             ),
@@ -136,8 +130,8 @@ class _NoteScreenState extends State<NoteScreen> {
                               ? Color(0xffFEC838)
                               : AppStyle.mainColor,
                           BlendMode.srcIn),
-                      width: screenWidth * 0.08,
-                      height: screenHeight * 0.08),
+                      width: screenWidth * 0.04,
+                      height: screenHeight * 0.04),
                   onPressed: () {
                     setState(() {
                       isDarkMode = !isDarkMode;
@@ -158,21 +152,20 @@ class _NoteScreenState extends State<NoteScreen> {
                         titleTextStyle: GoogleFonts.nunito(
                           color: Color(0xff212E54),
                           fontWeight: FontWeight.w700,
-                          fontSize: screenWidth * 0.03,
+                          fontSize:  screenWidth * 0.04,
                         ),
                         desc: "Are You Sure You Want To Delete This Note?",
                         descTextStyle: GoogleFonts.nunito(
                           color: Color(0xff9B9B9B),
                           fontWeight: FontWeight.w700,
-                          fontSize: screenWidth * 0.029,
+                          fontSize: screenWidth * 0.038,
                         ),
                         btnOkOnPress: () async {
                           deleteNote(widget.doc!);
                           Get.back();
                         },
                         btnOkText: "Delete",
-                        buttonsTextStyle: GoogleFonts.nunito(fontSize: screenWidth * 0.027,color: Colors.white, fontWeight: FontWeight.bold),
-                        btnOkColor: Color(0xFF212E54),
+        buttonsTextStyle: GoogleFonts.nunito(fontSize: screenWidth * 0.032,color: Colors.white, fontWeight: FontWeight.bold),
                         btnCancelOnPress: () {
                           Get.back();
                         },
@@ -181,14 +174,17 @@ class _NoteScreenState extends State<NoteScreen> {
                       ).show();
                     },
                     icon: Icon(Icons.delete_outline,
-                        size: screenHeight * 0.08,
+                        size: screenHeight * 0.04,
                         color:
                             isDarkMode ? Colors.white : AppStyle.mainColor))
           ],
         ),
         body: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.only(top: 15, left: 15, right: 15),
+             padding: EdgeInsets.only(
+              top: screenHeight * 0.00001,
+              left: screenWidth * 0.06,
+              right: screenWidth * 0.06),
             child: ListView(
               children: [
                 TextField(
@@ -197,14 +193,14 @@ class _NoteScreenState extends State<NoteScreen> {
                   decoration: InputDecoration(
                     hintText: "Title",
                     hintStyle: GoogleFonts.roboto(
-                      fontSize: screenHeight * 0.07,
+                      fontSize: screenHeight * 0.035,
                       fontWeight: FontWeight.w600,
                       color: isDarkMode ? Colors.white : Color(0xffbdbdbd),
                     ),
                     border: InputBorder.none,
                   ),
                   style: GoogleFonts.nunito(
-                    fontSize: screenHeight * 0.07,
+                    fontSize: screenHeight * 0.035,
                     fontWeight: FontWeight.bold,
                     color: isDarkMode
                         ? Colors.white
@@ -221,7 +217,7 @@ class _NoteScreenState extends State<NoteScreen> {
                         ? Text(
                             "Last Edit: ${widget.doc!["edit_date"]}",
                             style: GoogleFonts.nunito(
-                              fontSize: screenHeight * 0.04,
+                              fontSize: screenHeight * 0.02,
                               fontWeight: FontWeight.normal,
                               color:
                                   isDarkMode ? Colors.white : Color(0xff9B9B9B),
@@ -231,21 +227,21 @@ class _NoteScreenState extends State<NoteScreen> {
                         : SizedBox()
                   ],
                 ),
-                SizedBox(height: screenHeight * 0.002),
+                SizedBox(height: screenHeight * 0.0001),
                 // Use a fixed height to avoid infinite size issues
                 TextFormField(
                   controller: contentController,
                   maxLines: null, // Allows for multi-line input
                   decoration: InputDecoration(
-                    hintText: "What's in Your Thought",
+                    hintText: "What's in Your Thought?",
                     hintStyle: GoogleFonts.nunito(
-                        fontSize: screenWidth * 0.035,
+                        fontSize: screenWidth * 0.06,
                         fontWeight: FontWeight.normal,
                         color: isDarkMode ? Colors.white : Color(0xff9B9B9B)),
                     border: InputBorder.none,
                   ),
                   style: GoogleFonts.nunito(
-                    fontSize: screenWidth * 0.035,
+                    fontSize: screenWidth * 0.06,
                     fontWeight: FontWeight.w400,
                     color: isDarkMode ? Colors.white : AppStyle.mainColor,
                   ),
